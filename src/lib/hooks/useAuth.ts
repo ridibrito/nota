@@ -19,14 +19,30 @@ interface AuthState {
 }
 
 export function useAuth() {
+  // Mock temporário para desenvolvimento - remover em produção
+  const mockUser = {
+    id: 'mock-user-id',
+    email: 'usuario@teste.com',
+    name: 'Usuário Teste',
+    role: 'admin' as const
+  };
+
   const [state, setState] = useState<AuthState>({
-    user: null,
-    profile: null,
-    loading: true,
+    user: mockUser as any,
+    profile: {
+      id: 'mock-user-id',
+      email: 'usuario@teste.com',
+      role: 'admin',
+      company_id: 'e8281131-097c-49c4-ab97-078a8c7f4e65'
+    },
+    loading: false,
     error: null
   });
 
   useEffect(() => {
+    // Mock temporário - comentado para desenvolvimento
+    // Descomentar em produção com Supabase configurado
+    /*
     // Verifica se Supabase está configurado (só no cliente)
     if (typeof window !== 'undefined' && (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
       setState({
@@ -109,6 +125,7 @@ export function useAuth() {
     );
 
     return () => subscription.unsubscribe();
+    */
   }, []);
 
   const signIn = async (email: string, password: string) => {

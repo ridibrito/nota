@@ -11,13 +11,29 @@ interface CompanyState {
 }
 
 export function useCompany(companyId?: string) {
+  // Mock temporário para desenvolvimento - remover em produção
+  const mockCompany: Company = {
+    id: 'e8281131-097c-49c4-ab97-078a8c7f4e65',
+    name: 'Alb Soluções e serviços LTDA',
+    cnpj: '44.981.253/0001-69',
+    im: '123456789',
+    cnae: '73.11-4-00',
+    item_lista_servico: '10.08',
+    cod_tributacao_municipio: '17.06',
+    environment: 'homolog',
+    created_at: '2025-09-17T11:52:30.15515+00:00'
+  };
+
   const [state, setState] = useState<CompanyState>({
-    company: null,
-    loading: true,
+    company: mockCompany,
+    loading: false,
     error: null
   });
 
   useEffect(() => {
+    // Mock temporário - comentado para desenvolvimento
+    // Descomentar em produção
+    /*
     const fetchCompany = async () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
@@ -63,6 +79,7 @@ export function useCompany(companyId?: string) {
     };
 
     fetchCompany();
+    */
   }, [companyId]);
 
   const updateCompany = async (updates: Partial<Company>) => {
