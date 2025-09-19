@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input, Label } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { 
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -24,6 +25,7 @@ export function CertificateUpload({
   certificateInfo, 
   onUploadSuccess 
 }: CertificateUploadProps) {
+  const { success, error: showError, warning } = useToast();
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     certificate: null as File | null,
@@ -91,11 +93,11 @@ export function CertificateUpload({
       const result = await response.json();
 
       if (result.success) {
-        alert('Certificado enviado com sucesso!');
+        success('Certificado enviado!', 'Certificado A1 configurado com sucesso.');
         setFormData({ certificate: null, passphrase: '' });
         onUploadSuccess?.();
       } else {
-        setError(result.error || 'Erro ao enviar certificado');
+        showError('Erro no upload', result.error || 'Erro ao enviar certificado');
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Erro desconhecido');
