@@ -9,6 +9,9 @@ export default function TestUserDbPage() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [testPassword, setTestPassword] = useState('senha123');
+  
+  // UUID que está sendo usado para os testes
+  const TEST_USER_UUID = '12345678-1234-1234-1234-123456789abc';
 
   const addResult = (title: string, data: any) => {
     setResults(prev => [...prev, { 
@@ -39,7 +42,7 @@ export default function TestUserDbPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           action: 'check_user',
-          userId: 'mock-user-id'
+          userId: TEST_USER_UUID
         })
       });
       const result = await response.json();
@@ -59,7 +62,7 @@ export default function TestUserDbPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           action: 'set_test_password',
-          userId: 'mock-user-id',
+          userId: '12345678-1234-1234-1234-123456789abc',
           testPassword
         })
       });
@@ -81,7 +84,7 @@ export default function TestUserDbPage() {
         body: JSON.stringify({
           currentPassword: testPassword,
           newPassword: 'nova123',
-          userId: 'mock-user-id'
+          userId: '12345678-1234-1234-1234-123456789abc'
         })
       });
       const result = await response.json();
@@ -102,6 +105,14 @@ export default function TestUserDbPage() {
           <CardHeader>
             <h1 className="text-2xl font-bold">🧪 Teste da Tabela user_profiles</h1>
             <p className="text-gray-600">Verificar se a persistência de senhas está funcionando</p>
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                <strong>UUID do Usuário Teste:</strong> <code className="bg-blue-100 px-2 py-1 rounded">{TEST_USER_UUID}</code>
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Este é o UUID real que será usado nos testes
+              </p>
+            </div>
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
