@@ -23,12 +23,26 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const { user, profile } = useAuth();
-  const { company, loading: companyLoading } = useCompany(profile?.company_id);
+  const { user, profile, loading: authLoading } = useAuth();
+  const { company, loading: companyLoading } = useCompany();
   const { invoices, loading: invoicesLoading } = useInvoices({
-    companyId: profile?.company_id,
+    companyId: company?.id,
     limit: 10
   });
+
+  // Aguardar carregamento do auth
+  if (authLoading) {
+    return (
+      <AppLayout user={user} company={company}>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando dashboard...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   // Loading state
   if (companyLoading || invoicesLoading) {

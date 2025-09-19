@@ -89,10 +89,7 @@ export default function LoginPage() {
               alt="Coruss NFS-e" 
               className="h-16 w-auto"
             />
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Coruss NFS-e</h1>
-              <p className="text-sm text-gray-500">Emissor de Notas Fiscais - Distrito Federal</p>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -166,21 +163,10 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Primeira vez?
-                  </span>
-                </div>
-              </div>
+              
 
               <div className="mt-6 text-center space-y-2">
-                <p className="text-sm text-gray-600">
-                  Entre em contato com o administrador para criar sua conta.
-                </p>
+              
                 <p className="text-xs text-gray-500">
                   Problemas? <a href="/status" className="text-blue-600 hover:underline">Verificar configuração</a>
                 </p>

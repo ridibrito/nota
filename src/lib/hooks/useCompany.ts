@@ -11,26 +11,52 @@ interface CompanyState {
 }
 
 export function useCompany(companyId?: string) {
-  // Mock temporário para desenvolvimento - remover em produção
-  const mockCompany: Company = {
-    id: 'e8281131-097c-49c4-ab97-078a8c7f4e65',
-    name: 'Alb Soluções e serviços LTDA',
-    cnpj: '44.981.253/0001-69',
-    im: '123456789',
-    cnae: '73.11-4-00',
-    item_lista_servico: '10.08',
-    cod_tributacao_municipio: '17.06',
-    environment: 'homolog',
-    created_at: '2025-09-17T11:52:30.15515+00:00'
+  // Função para carregar dados do localStorage
+  const loadCompanyFromStorage = () => {
+    if (typeof window === 'undefined') return null;
+    
+    try {
+      const storedCompany = localStorage.getItem('company_data');
+      if (storedCompany) {
+        return JSON.parse(storedCompany);
+      }
+    } catch (error) {
+      console.warn('Erro ao carregar empresa do localStorage:', error);
+    }
+    
+    // Dados padrão se não houver no localStorage
+    return {
+      id: 'e8281131-097c-49c4-ab97-078a8c7f4e65',
+      name: 'Alb Soluções e serviços LTDA',
+      cnpj: '44.981.253/0001-69',
+      im: '123456789',
+      cnae: '73.11-4-00',
+      item_lista_servico: '10.08',
+      cod_tributacao_municipio: '17.06',
+      environment: 'homolog',
+      created_at: '2025-09-17T11:52:30.15515+00:00'
+    };
   };
 
   const [state, setState] = useState<CompanyState>({
-    company: mockCompany,
-    loading: false,
+    company: null,
+    loading: true,
     error: null
   });
 
   useEffect(() => {
+    // Carregar dados do localStorage na inicialização
+    const companyData = loadCompanyFromStorage();
+    if (companyData) {
+      setState({
+        company: companyData,
+        loading: false,
+        error: null
+      });
+    } else {
+      setState(prev => ({ ...prev, loading: false }));
+    }
+
     // Mock temporário - comentado para desenvolvimento
     // Descomentar em produção
     /*
@@ -97,8 +123,19 @@ export function useCompany(companyId?: string) {
         return { success: false, error: result.error };
       }
 
-      setState(prev => ({ ...prev, company: result.data }));
-      return { success: true, data: result.data };
+      const updatedCompany = result.data;
+
+      // Salvar no localStorage para persistir
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('company_data', JSON.stringify(updatedCompany));
+        } catch (error) {
+          console.warn('Erro ao salvar empresa no localStorage:', error);
+        }
+      }
+
+      setState(prev => ({ ...prev, company: updatedCompany }));
+      return { success: true, data: updatedCompany };
     } catch (error) {
       console.error('Erro na requisição:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';

@@ -3,6 +3,9 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/components/ui/Toast';
 import { 
   BellIcon, 
   UserCircleIcon,
@@ -24,6 +27,36 @@ interface HeaderProps {
 }
 
 export function Header({ user, company }: HeaderProps) {
+  const router = useRouter();
+  const { signOut } = useAuth();
+  const { success, error } = useToast();
+  
+  const displayName = user?.name || user?.email || 'Usuário';
+  const environment = company?.environment === 'prod' ? 'Produção' : 'Homologação';
+
+  const handleLogout = async () => {
+    try {
+      // Limpar localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user_profile');
+        localStorage.removeItem('company_data');
+      }
+
+      // Chamar função de logout (se implementada)
+      await signOut();
+
+      // Mostrar toast de sucesso
+      success('Logout realizado', 'Você foi desconectado com sucesso.');
+
+      // Redirecionar para login após um breve delay
+      setTimeout(() => {
+        router.push('/login');
+      }, 1000);
+    } catch (err) {
+      error('Erro no logout', 'Não foi possível realizar o logout.');
+    }
+  };
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex h-16 items-center justify-between px-6">
@@ -114,9 +147,7 @@ export function Header({ user, company }: HeaderProps) {
                         active ? 'bg-gray-100' : '',
                         'flex w-full items-center px-4 py-2 text-sm text-gray-700'
                       )}
-                      onClick={() => {
-                        // Implementar logout
-                      }}
+                      onClick={handleLogout}
                     >
                       <ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />
                       Sair

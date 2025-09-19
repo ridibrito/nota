@@ -19,27 +19,54 @@ interface AuthState {
 }
 
 export function useAuth() {
-  // Mock temporário para desenvolvimento - remover em produção
-  const mockUser = {
-    id: 'mock-user-id',
-    email: 'usuario@teste.com',
-    name: 'Usuário Teste',
-    role: 'admin' as const
+  // Função para carregar dados do localStorage
+  const loadUserFromStorage = () => {
+    if (typeof window === 'undefined') return null;
+    
+    try {
+      const storedUser = localStorage.getItem('user_profile');
+      if (storedUser) {
+        return JSON.parse(storedUser);
+      }
+    } catch (error) {
+      console.warn('Erro ao carregar perfil do localStorage:', error);
+    }
+    
+    // Dados padrão se não houver no localStorage
+    return {
+      id: '12345678-1234-1234-1234-123456789abc',
+      email: 'usuario@teste.com',
+      name: 'Usuário Teste',
+      role: 'admin' as const
+    };
   };
 
   const [state, setState] = useState<AuthState>({
-    user: mockUser as any,
-    profile: {
-      id: 'mock-user-id',
-      email: 'usuario@teste.com',
-      role: 'admin',
-      company_id: 'e8281131-097c-49c4-ab97-078a8c7f4e65'
-    },
-    loading: false,
+    user: null,
+    profile: null,
+    loading: true,
     error: null
   });
 
   useEffect(() => {
+    // Carregar dados do localStorage na inicialização
+    const userData = loadUserFromStorage();
+    if (userData) {
+      setState({
+        user: userData,
+        profile: {
+          id: userData.id,
+          email: userData.email,
+          role: userData.role,
+          company_id: 'e8281131-097c-49c4-ab97-078a8c7f4e65'
+        },
+        loading: false,
+        error: null
+      });
+    } else {
+      setState(prev => ({ ...prev, loading: false }));
+    }
+
     // Mock temporário - comentado para desenvolvimento
     // Descomentar em produção com Supabase configurado
     /*
@@ -145,20 +172,59 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      setState(prev => ({ ...prev, error: error.message }));
-      return { success: false, error: error.message };
+    try {
+      // Limpar estado local
+      setState({
+        user: null,
+        profile: null,
+        loading: false,
+        error: null
+      });
+
+      // Limpar localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user_profile');
+        localStorage.removeItem('company_data');
+      }
+
+      // Se Supabase estiver configurado, fazer logout lá também
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.warn('Erro no logout do Supabase:', error.message);
+        }
+      } catch (supabaseError) {
+        console.warn('Supabase não disponível para logout:', supabaseError);
+      }
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setState(prev => ({ ...prev, error: errorMessage }));
+      return { success: false, error: errorMessage };
     }
-    return { success: true };
   };
 
   const updateProfile = (updates: { name?: string; email?: string }) => {
-    setState(prev => ({
-      ...prev,
-      user: prev.user ? { ...prev.user, ...updates } : prev.user,
-      profile: prev.profile ? { ...prev.profile, ...updates } : prev.profile
-    }));
+    setState(prev => {
+      const updatedUser = prev.user ? { ...prev.user, ...updates } : prev.user;
+      const updatedProfile = prev.profile ? { ...prev.profile, ...updates } : prev.profile;
+      
+      // Salvar no localStorage
+      if (updatedUser && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('user_profile', JSON.stringify(updatedUser));
+        } catch (error) {
+          console.warn('Erro ao salvar perfil no localStorage:', error);
+        }
+      }
+      
+      return {
+        ...prev,
+        user: updatedUser,
+        profile: updatedProfile
+      };
+    });
   };
 
   return {
