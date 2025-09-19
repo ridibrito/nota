@@ -31,41 +31,41 @@ export default function LoginPage() {
     }
 
     try {
-      console.log('Chamando Supabase auth...');
+      console.log('Tentando login via API customizada...');
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email.trim(),
-        password: formData.password
+      // Usar API customizada que funciona com nossa tabela user_profiles
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password
+        })
       });
 
-      console.log('Resposta do Supabase:', { data, error });
+      const result = await response.json();
+      console.log('Resposta da API:', result);
 
-      if (error) {
-        console.error('Erro de autenticação:', error);
-        setError(`Erro: ${error.message}`);
+      if (!result.success) {
+        console.error('Erro de autenticação:', result.error);
+        setError(result.error || 'Credenciais inválidas');
         setLoading(false);
         return;
       }
 
-      if (data.user) {
-        console.log('Login bem-sucedido, redirecionando...');
+      if (result.user) {
+        console.log('Login realizado com sucesso!');
         
-        // Busca o perfil do usuário
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Erro ao buscar perfil:', profileError);
-          setError('Usuário autenticado, mas perfil não encontrado');
-          setLoading(false);
-          return;
+        // Salvar dados do usuário no localStorage
+        localStorage.setItem('user_profile', JSON.stringify(result.user));
+        if (result.company) {
+          localStorage.setItem('company_data', JSON.stringify(result.company));
         }
-
-        console.log('Perfil encontrado:', profile);
+        
+        // Redirecionar para dashboard
         router.push('/dashboard');
+      } else {
+        setError('Erro desconhecido no login');
       }
     } catch (error) {
       console.error('Erro na função de login:', error);
