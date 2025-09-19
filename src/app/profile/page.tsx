@@ -25,7 +25,7 @@ interface ProfileFormData {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { company } = useCompany();
   const { success, error, warning } = useToast();
   
@@ -92,13 +92,19 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
-          email: formData.email
+          email: formData.email,
+          userId: user?.id
         })
       });
 
       const result = await response.json();
 
       if (result.success) {
+        // Atualizar dados localmente
+        updateProfile({
+          name: formData.name,
+          email: formData.email
+        });
         success('Perfil atualizado!', 'Seus dados foram salvos com sucesso.');
       } else {
         error('Erro ao atualizar', result.error || 'Erro desconhecido');
@@ -147,7 +153,8 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword
+          newPassword: formData.newPassword,
+          userId: user?.id
         })
       });
 

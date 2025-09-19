@@ -153,9 +153,18 @@ export function useAuth() {
     return { success: true };
   };
 
+  const updateProfile = (updates: { name?: string; email?: string }) => {
+    setState(prev => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...updates } : prev.user,
+      profile: prev.profile ? { ...prev.profile, ...updates } : prev.profile
+    }));
+  };
+
   return {
     ...state,
     signIn,
-    signOut
+    signOut,
+    updateProfile
   };
 }

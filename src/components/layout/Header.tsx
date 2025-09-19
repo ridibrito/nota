@@ -116,7 +116,6 @@ export function Header({ user, company }: HeaderProps) {
                       )}
                       onClick={() => {
                         // Implementar logout
-                        console.log('Logout');
                       }}
                     >
                       <ArrowRightOnRectangleIcon className="mr-3 h-4 w-4" />

@@ -81,14 +81,12 @@ export function CertificateUpload({
       formDataToSend.append('certificate', formData.certificate);
       formDataToSend.append('passphrase', formData.passphrase);
 
-      console.log('Enviando certificado via API simples...');
       
       const response = await fetch('/api/certificates/simple-upload', {
         method: 'POST',
         body: formDataToSend
       });
 
-      console.log('Resposta da API:', response.status, response.statusText);
 
       const result = await response.json();
 

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/db/supabase';
+import bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
 export async function PUT(req: NextRequest) {
   try {
-    const { currentPassword, newPassword } = await req.json();
+    const { currentPassword, newPassword, userId } = await req.json();
 
     // Validações básicas
     if (!currentPassword) {
@@ -36,23 +37,59 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // TODO: Implementar validação da senha atual e atualização
-    // Por enquanto, simulação de sucesso
-    console.log('Alterando senha do usuário...');
+    // Para desenvolvimento, usar um ID fixo se não fornecido
+    const userIdToUpdate = userId || 'mock-user-id';
 
     // Simular validação da senha atual
-    // Em produção, você validaria com Supabase Auth
+    // Em produção, você validaria com Supabase Auth:
+    /*
+    const supabase = getSupabaseAdmin();
     
-    // Simular delay de API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Buscar hash da senha atual
+    const { data: userData, error: fetchError } = await supabase
+      .from('user_profiles')
+      .select('password_hash')
+      .eq('id', userIdToUpdate)
+      .single();
 
-    // Simular possível erro de senha incorreta (10% chance)
-    if (Math.random() < 0.1) {
+    if (fetchError || !userData) {
+      return NextResponse.json(
+        { success: false, error: 'Usuário não encontrado' },
+        { status: 404 }
+      );
+    }
+
+    // Verificar senha atual
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, userData.password_hash);
+    if (!isCurrentPasswordValid) {
       return NextResponse.json(
         { success: false, error: 'Senha atual incorreta' },
         { status: 400 }
       );
     }
+
+    // Hash da nova senha
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+    // Atualizar senha
+    const { error: updateError } = await supabase
+      .from('user_profiles')
+      .update({ 
+        password_hash: newPasswordHash,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userIdToUpdate);
+
+    if (updateError) {
+      return NextResponse.json(
+        { success: false, error: 'Erro ao atualizar senha no banco de dados' },
+        { status: 500 }
+      );
+    }
+    */
+
+    // Simulação de sucesso para desenvolvimento
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     return NextResponse.json({
       success: true,
@@ -60,7 +97,6 @@ export async function PUT(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erro ao alterar senha:', error);
     return NextResponse.json(
       { 
         success: false, 

@@ -38,7 +38,6 @@ export function useCompany(companyId?: string) {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
 
-        console.log('Buscando empresa...', { companyId });
 
         let query = supabase.from('companies').select('*');
         
@@ -52,24 +51,19 @@ export function useCompany(companyId?: string) {
 
         const { data, error } = await query.single();
 
-        console.log('Resultado da busca:', { data, error });
 
         if (error) {
           if (error.code === 'PGRST116') {
             // Nenhuma empresa encontrada
-            console.log('Nenhuma empresa encontrada');
             setState({ company: null, loading: false, error: null });
           } else {
-            console.error('Erro ao buscar empresa:', error);
             setState({ company: null, loading: false, error: error.message });
           }
           return;
         }
 
-        console.log('Empresa carregada:', data);
         setState({ company: data, loading: false, error: null });
       } catch (error) {
-        console.error('Erro na busca da empresa:', error);
         setState({
           company: null,
           loading: false,
@@ -88,7 +82,6 @@ export function useCompany(companyId?: string) {
     }
 
     try {
-      console.log('Atualizando empresa via API:', { companyId: state.company.id, updates });
 
       const response = await fetch(`/api/companies/${state.company.id}`, {
         method: 'PUT',
@@ -101,7 +94,6 @@ export function useCompany(companyId?: string) {
       const result = await response.json();
 
       if (!result.success) {
-        console.error('Erro da API:', result);
         return { success: false, error: result.error };
       }
 

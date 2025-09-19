@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 
 export async function PUT(req: NextRequest) {
   try {
-    const { name, email } = await req.json();
+    const { name, email, userId } = await req.json();
 
     // Validações básicas
     if (!name?.trim()) {
@@ -31,21 +31,44 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // TODO: Implementar autenticação real
-    // Por enquanto, simulação de sucesso
-    console.log('Atualizando perfil:', { name, email });
+    // Para desenvolvimento, usar um ID fixo se não fornecido
+    const userIdToUpdate = userId || 'mock-user-id';
 
-    // Simular delay de API
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simular atualização no banco de dados
+    // Em produção, aqui você atualizaria no Supabase:
+    /*
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .update({ 
+        name, 
+        email,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userIdToUpdate)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: 'Erro ao atualizar no banco de dados' },
+        { status: 500 }
+      );
+    }
+    */
 
     return NextResponse.json({
       success: true,
       message: 'Perfil atualizado com sucesso',
-      data: { name, email }
+      data: { 
+        id: userIdToUpdate,
+        name, 
+        email,
+        updated_at: new Date().toISOString()
+      }
     });
 
   } catch (error) {
-    console.error('Erro ao atualizar perfil:', error);
     return NextResponse.json(
       { 
         success: false, 

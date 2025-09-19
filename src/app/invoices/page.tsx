@@ -26,22 +26,10 @@ export default function InvoicesPage() {
   const { user } = useAuth();
   const { company } = useCompany();
   
-  // Definir mês vigente automaticamente
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-    return {
-      startDate: firstDay.toISOString().split('T')[0],
-      endDate: lastDay.toISOString().split('T')[0]
-    };
-  }, []);
-
   const [filters, setFilters] = useState({
     status: '',
-    startDate: currentMonth.startDate,
-    endDate: currentMonth.endDate,
+    startDate: '',
+    endDate: '',
     search: '',
     page: 1
   });
@@ -59,8 +47,6 @@ export default function InvoicesPage() {
     setIssnetError(null);
 
     try {
-      console.log('Buscando notas no ISSNet DF...', { startDate, endDate });
-
       const response = await fetch('/api/invoices/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,7 +58,6 @@ export default function InvoicesPage() {
       });
 
       const result = await response.json();
-      console.log('Resultado do ISSNet:', result);
 
       if (result.success) {
         // Converter resposta do ISSNet para formato da interface
@@ -87,7 +72,6 @@ export default function InvoicesPage() {
         }
       } else {
         // Se ISSNet falhar, tentar simulação
-        console.log('ISSNet falhou, tentando simulação...');
         try {
           const simResponse = await fetch('/api/invoices/simulate-query', {
             method: 'POST',
@@ -214,13 +198,6 @@ export default function InvoicesPage() {
     ...filters
   });
 
-  // Carregar automaticamente notas do mês vigente quando empresa estiver disponível
-  useEffect(() => {
-    if (company?.id && filters.startDate && filters.endDate) {
-      console.log('Carregando notas do mês vigente automaticamente...');
-      fetchISSNetInvoices(filters.startDate, filters.endDate);
-    }
-  }, [company?.id]);
 
   // Usar dados do ISSNet se disponíveis, senão dados locais
   const invoices = issnetInvoices.length > 0 ? issnetInvoices : localInvoices;
@@ -267,21 +244,6 @@ export default function InvoicesPage() {
     }
   };
 
-  // Debug: vamos ver o que está acontecendo
-  console.log('Debug InvoicesPage:', { 
-    user: !!user, 
-    company: !!company, 
-    companyId: company?.id,
-    companyName: company?.name,
-    invoicesCount: invoices.length,
-    loading,
-    error,
-    filters
-  });
-
-  // Debug adicional dos invoices
-  console.log('Invoices data:', invoices);
-  console.log('Pagination:', pagination);
 
   if (!company) {
     return (
