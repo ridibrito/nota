@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/db/supabase';
-import bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
